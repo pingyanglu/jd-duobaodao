@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible"
+		content="IE=edge">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<script src="https://libs.cdnjs.net/jquery/2.1.0/jquery.min.js"></script>
+</head>
+<input type="text"
+	class="keyWord">
+<input type="text"
+	class="time" value="20">
+<button class="search">查询</button>
+<ul>
+	<!-- <li>
+		<a href="http://www.baidu.com" target='_blank'>测试</a>
+	</li> -->
+</ul>
+
+<body>
+
+</body>
+<script>
+	/* $.ajax({
+		url:"https://used-api.jd.com/auction/list",
+		data:{
+			pageNo: 1,
+			pageSize: 50,
+			category1:'' ,
+			status: '',
+			orderDirection: 1,
+			auctionType: 1,
+			orderType: 1,
+			groupId: 1000005,
+			callback: '__jp34',
+		},
+		success: function(res){
+			console.log(res.data.auctionInfos)
+		}
+	}) */
+	function list(page) {
+		return new Promise(function (resolve, reject) {
+			$.ajax({
+				url: "http://localhost:3000/list",
+				dataType: 'json',
+				data: {
+					page: page
+				},
+				success: function (res) {
+					resolve(res.data.auctionInfos)
+				},
+				error: function (err) {
+					console.log(err)
+				}
+			})
+		})
+	}
+
+	let str = '';
+	function query(page, keyWord = '路由器') {
+		list(page).then(res => {
+			res.forEach((ele, index) => {
+				if (ele.productName && ele.productName.includes(keyWord)) {
+					str += `<li><a href="https://paipai.jd.com/auction-detail/${ele.id}" target='_blank'>${ele.productName + '--------' + page + '==========>' + index}</a></li>`
+					// console.log(ele.productName, page + '==========>' + index)
+				}
+
+			});
+			$('ul').html(str);
+		})
+	}
+
+	function searchData(time = 20) {
+		str = ''
+		console.log(time)
+		for (let i = 0; i < time; i++) {
+			query(i + 1, $('.keyWord').val()||'路由器')
+		}
+	}
+	$('.search').click(function(){
+		searchData($('.time').val())
+	})
+	$('.search').on('keydown', function (e) {
+		if (e.keyCode === 13) {
+			searchData($('.time').val())
+		}
+	})
+	$('.keyWord').on('keydown', function (e) {
+		if (e.keyCode === 13) {
+			searchData($('.time').val())
+		}
+	})
+
+</script>
+
+</html>
